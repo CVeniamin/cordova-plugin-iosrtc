@@ -52,7 +52,7 @@ module.exports = {
 	observeVideo:          videoElementsHandler.observeVideo,
 
 	// Select audio output (earpiece or speaker).
-	selectAudioOutput:     selectAudioOutput,
+	//selectAudioOutput:     selectAudioOutput,
 
 	// turnOnSpeaker with options
 	turnOnSpeaker: turnOnSpeaker,
@@ -91,7 +91,7 @@ function refreshVideos() {
 }
 
 function selectAudioOutput(output) {
-	debug('selectAudioOutput() | [output:"%s"]', output);
+	/*debug('selectAudioOutput() | [output:"%s"]', output);
 
 	switch (output) {
 		case 'earpiece':
@@ -102,7 +102,7 @@ function selectAudioOutput(output) {
 			break;
 		default:
 			throw new Error('output must be "earpiece" or "speaker"');
-	}
+	}*/
 }
 
 function turnOnSpeaker(isTurnOn, needRecord) {
