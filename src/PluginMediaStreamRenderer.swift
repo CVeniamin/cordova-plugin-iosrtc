@@ -41,7 +41,7 @@ class PluginMediaStreamRenderer : NSObject, RTCVideoRenderer, RTCEAGLVideoViewDe
 		self.webView?.scrollView.addSubview(self.elementView)
 		//self.webView.superview?.bringSubview(toFront: self.webView)
 		self.webView?.isOpaque = false
-		self.webView?.backgroundColor = UIColor.clear
+		self.webView?.backgroundColor = UIColor.black
 	}
 
 
