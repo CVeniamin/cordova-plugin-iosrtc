@@ -28,6 +28,8 @@ class PluginMediaStreamRenderer : NSObject, RTCVideoRenderer, RTCEAGLVideoViewDe
 		// It's placed over the elementView.
 		self.videoView = RTCEAGLVideoView()
 		self.videoSize = CGSize(width: 0, height: 0);
+		self.videoView.isOpaque = false
+        self.videoView.backgroundColor = UIColor.black
 
 		self.elementView.isUserInteractionEnabled = false
 		self.elementView.isHidden = true
@@ -41,7 +43,7 @@ class PluginMediaStreamRenderer : NSObject, RTCVideoRenderer, RTCEAGLVideoViewDe
 		self.webView?.scrollView.addSubview(self.elementView)
 		//self.webView.superview?.bringSubview(toFront: self.webView)
 		self.webView?.isOpaque = false
-		self.webView?.backgroundColor = UIColor.black
+		self.webView?.backgroundColor = UIColor.clear
 	}
 
 
