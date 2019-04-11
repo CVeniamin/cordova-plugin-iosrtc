@@ -38,9 +38,9 @@ class PluginGetUserMedia {
 		let	videoMinWidth = constraints.object(forKey: "videoMinWidth") as? Int ?? 0
 		let	videoMaxWidth = constraints.object(forKey: "videoMaxWidth") as? Int ?? 640
 		let	videoMinHeight = constraints.object(forKey: "videoMinHeight") as? Int ?? 0
-		let	videoMaxHeight = constraints.object(forKey: "videoMaxHeight") as? Int ?? 640
-		let	videoMinFrameRate = constraints.object(forKey: "videoMinFrameRate") as? Float ?? 0.0
-		let	videoMaxFrameRate = constraints.object(forKey: "videoMaxFrameRate") as? Float ?? 25.0
+		let	videoMaxHeight = constraints.object(forKey: "videoMaxHeight") as? Int ?? 0
+		let	videoMinFrameRate = constraints.object(forKey: "videoMinFrameRate") as? Double ?? 0.0
+		let	videoMaxFrameRate = constraints.object(forKey: "videoMaxFrameRate") as? Double ?? 0.0
 
 		var rtcMediaStream: RTCMediaStream
 		var pluginMediaStream: PluginMediaStream?
@@ -51,7 +51,7 @@ class PluginGetUserMedia {
 		var constraints: RTCMediaConstraints
 
 		if videoRequested == true {
-			switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) {
+			switch AVCaptureDevice.authorizationStatus(for: AVMediaType(rawValue: convertFromAVMediaType(AVMediaType.video))) {
 			case AVAuthorizationStatus.notDetermined:
 				NSLog("PluginGetUserMedia#call() | video authorization: not determined")
 			case AVAuthorizationStatus.authorized:
@@ -68,7 +68,7 @@ class PluginGetUserMedia {
 		}
 
 		if audioRequested == true {
-			switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeAudio) {
+			switch AVCaptureDevice.authorizationStatus(for: AVMediaType(rawValue: convertFromAVMediaType(AVMediaType.audio))) {
 			case AVAuthorizationStatus.notDetermined:
 				NSLog("PluginGetUserMedia#call() | audio authorization: not determined")
 			case AVAuthorizationStatus.authorized:
@@ -87,11 +87,23 @@ class PluginGetUserMedia {
 		rtcMediaStream = self.rtcPeerConnectionFactory.mediaStream(withStreamId: UUID().uuidString)
 
 		if videoRequested == true {
+			// No specific video device requested.
+			if videoDeviceId == nil {
+				NSLog("PluginGetUserMedia#call() | video requested (device not specified)")
+
+				for device: AVCaptureDevice in (AVCaptureDevice.devices(for: AVMediaType(rawValue: convertFromAVMediaType(AVMediaType.video))) ) {
+					if device.position == AVCaptureDevice.Position.front {
+						videoDevice = device
+						break
+					}
+				}
+			}
+
 			// Video device specified.
 			if videoDeviceId != nil {
 				NSLog("PluginGetUserMedia#call() | video requested (specified device id: '%@')", String(videoDeviceId!))
 
-				for device: AVCaptureDevice in (AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) as! Array<AVCaptureDevice>) {
+				for device: AVCaptureDevice in (AVCaptureDevice.devices(for: AVMediaType(rawValue: convertFromAVMediaType(AVMediaType.video))) ) {
 					if device.uniqueID == videoDeviceId {
 						if device.position == AVCaptureDevicePosition.back {
 							usingFront = false
@@ -170,4 +182,9 @@ class PluginGetUserMedia {
 			"stream": pluginMediaStream!.getJSON()
 		])
 	}
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromAVMediaType(_ input: AVMediaType) -> String {
+	return input.rawValue
 }
