@@ -142,66 +142,33 @@ class PluginMediaStreamRenderer : NSObject, RTCVideoRenderer, RTCEAGLVideoViewDe
 
 
 	func refresh(_ data: NSDictionary) {
-		self.data = data;
-		self.refresh();
-	}
-
-	func refresh() {
-		if(self.data == nil || (videoSize.width <= 0 || videoSize.height <= 0)){
-			return;
-		}
-		let data = self.data!;
-		let elementLeft = data.object(forKey: "elementLeft") as? Float ?? 0
-		let elementTop = data.object(forKey: "elementTop") as? Float ?? 0
-		let elementWidth = data.object(forKey: "elementWidth") as? Float ?? 0
-		let elementHeight = data.object(forKey: "elementHeight") as? Float ?? 0
-		var videoViewWidth: Float = Float(videoSize.width)//data.object(forKey: "videoViewWidth") as? Float ?? 0
-		var videoViewHeight: Float = Float(videoSize.height)//data.object(forKey: "videoViewHeight") as? Float ?? 0
-		let visible = true //zIndex < 0 ? true : data.objectForKey("visible") as? Bool ?? true
-		let opacity = data.object(forKey: "opacity") as? Float ?? 1
-		let zIndex = data.object(forKey: "zIndex") as? Float ?? 0
+		let elementLeft = data.object(forKey: "elementLeft") as? Double ?? 0
+		let elementTop = data.object(forKey: "elementTop") as? Double ?? 0
+		let elementWidth = data.object(forKey: "elementWidth") as? Double ?? 0
+		let elementHeight = data.object(forKey: "elementHeight") as? Double ?? 0
+		var videoViewWidth = data.object(forKey: "videoViewWidth") as? Double ?? 0
+		var videoViewHeight = data.object(forKey: "videoViewHeight") as? Double ?? 0
+		let visible = data.object(forKey: "visible") as? Bool ?? true
+		let opacity = data.object(forKey: "opacity") as? Double ?? 1
+		let zIndex = data.object(forKey: "zIndex") as? Double ?? 0
 		let mirrored = data.object(forKey: "mirrored") as? Bool ?? false
-		let clip = data.object(forKey: "clip") as? Bool ?? false
-		let borderRadius = data.object(forKey: "borderRadius") as? Float ?? 0
-		
+		let clip = data.object(forKey: "clip") as? Bool ?? true
+		let borderRadius = data.object(forKey: "borderRadius") as? Double ?? 0
+
 		NSLog("PluginMediaStreamRenderer#refresh() [elementLeft:%@, elementTop:%@, elementWidth:%@, elementHeight:%@, videoViewWidth:%@, videoViewHeight:%@, visible:%@, opacity:%@, zIndex:%@, mirrored:%@, clip:%@, borderRadius:%@]",
-			  String(elementLeft), String(elementTop), String(elementWidth), String(elementHeight),
-			  String(videoViewWidth), String(videoViewHeight), String(visible), String(opacity), String(zIndex),
-			  String(mirrored), String(clip), String(borderRadius))
+			String(elementLeft), String(elementTop), String(elementWidth), String(elementHeight),
+			String(videoViewWidth), String(videoViewHeight), String(visible), String(opacity), String(zIndex),
+			String(mirrored), String(clip), String(borderRadius))
 
-		if(elementHeight > 0 && elementWidth > 0){
-			//calc ratio
-			let ratio = videoViewWidth/videoViewHeight;
-			var ratio_condition = videoViewWidth/videoViewHeight > elementWidth/elementHeight;
-			if(clip){
-				ratio_condition = !ratio_condition;
-			}
+		let videoViewLeft: Double = (elementWidth - videoViewWidth) / 2
+		let videoViewTop: Double = (elementHeight - videoViewHeight) / 2
 
-			if(ratio_condition){
-				videoViewWidth = elementWidth;
-				videoViewHeight = videoViewWidth/ratio;
-			}else{
-				videoViewHeight = elementHeight;
-				videoViewWidth = videoViewHeight*ratio;
-			}
-
-			let videoViewLeft: Float = (elementWidth - videoViewWidth) / 2
-			let videoViewTop: Float = (elementHeight - videoViewHeight) / 2
-
-			self.elementView.frame = CGRect(
-				x: CGFloat(elementLeft),
-				y: CGFloat(elementTop),
-				width: CGFloat(elementWidth),
-				height: CGFloat(elementHeight)
-			)
-
-			self.videoView.frame = CGRect(
-				x: CGFloat(videoViewLeft),
-				y: CGFloat(videoViewTop),
-				width: CGFloat(videoViewWidth),
-				height: CGFloat(videoViewHeight)
-			)
-		}
+		self.elementView.frame = CGRect(
+			x: CGFloat(elementLeft),
+			y: CGFloat(elementTop),
+			width: CGFloat(elementWidth),
+			height: CGFloat(elementHeight)
+		)
 
 		// NOTE: Avoid a zero-size UIView for the video (the library complains).
 		if videoViewWidth == 0 || videoViewHeight == 0 {
@@ -223,7 +190,7 @@ class PluginMediaStreamRenderer : NSObject, RTCVideoRenderer, RTCEAGLVideoViewDe
 
 		// if the zIndex is 0 (the default) bring the view to the top, last one wins
 		if zIndex == 0 {
-			self.webView?.superview?.bringSubview(toFront: self.elementView)
+			self.webView.superview?.bringSubviewToFront(self.elementView)
 		}
 
 		if !mirrored {
